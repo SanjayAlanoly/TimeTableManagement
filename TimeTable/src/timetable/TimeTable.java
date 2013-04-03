@@ -18,7 +18,7 @@ import jxl.write.WriteException;
 
 interface Constants{
     public static final int TMAX = 39; //26
-    public static final int SMAX = 43;  //45
+    public static final int SMAX = 44;  //45
     public static final int CMAX = 8;   //8
     public static final int LMAX = 8;   //8
 }
@@ -339,7 +339,7 @@ class TimeTableGen{
         }
        catch(Exception E){
            GUI.SetLabelText("Input File Not Selected");
-           //System.out.println("Error in Excel Input1: " + E);
+           System.out.println("Error in Excel Input Classes: " + E);
        }
        
        
@@ -348,7 +348,7 @@ class TimeTableGen{
         TeachersInput(Input);
         }
         catch(Exception E){
-            //System.out.println("Error in Excel Input2: " + E);
+            System.out.println("Error in Excel Input Labs Teachers: " + E);
         }
         
         
@@ -356,7 +356,7 @@ class TimeTableGen{
             ClassFixedInput(Input);
        }
        catch(Exception E){
-           //System.out.println("Error in Excel Input3: " + E);
+           System.out.println("Error in Excel Input Fixed: " + E);
        }
            
         
@@ -465,7 +465,7 @@ class TimeTableGen{
                 ElectiveNo = Integer.parseInt(CCell.getContents());
             else
                 ElectiveNo = null;
-            
+            //System.out.println(Id + Name + ShortName + HrsPerWeek + Duration + ElectiveNo);
             Subject[Row] = new Subjects(Id,Name,ShortName,HrsPerWeek,Duration,ElectiveNo);
             
         }
@@ -566,6 +566,7 @@ class TimeTableGen{
             else
                 TCode = null;
             
+           
             
             Column=3;
                         
@@ -576,10 +577,14 @@ class TimeTableGen{
                     if(!"".equals(CCell.getContents())){
                         
                         if(AColumn==0){
+                            //System.out.println(CCell.getContents());
                             SCId[ARow][AColumn] = getSubjectId(CCell.getContents());
+                            
                         }
                         else  {
+                            //System.out.println(CCell.getContents());
                             SCId[ARow][AColumn] = getClassId(CCell.getContents());
+                             
                         }                      
                             
                         
@@ -592,7 +597,7 @@ class TimeTableGen{
                 }
                  
             }
-                       
+                      
             Teacher[Row] = new Teachers(Id,Name,TCode,SCId);
             
         }
@@ -803,7 +808,7 @@ class TimeTableGen{
 
     public static void ClassTimeTableOuput(WritableWorkbook OutputWorkbook) throws IOException, jxl.write.WriteException {
         
-        //System.out.println("Blah");
+        //System.out.println("ClassTTT");
         
         Integer ObCounter;
         Integer Day,Period;
@@ -891,7 +896,7 @@ class TimeTableGen{
     public static void TeacherTimeTableOuput(WritableWorkbook OutputWorkbook) throws IOException, jxl.write.WriteException {
         
         
-        //System.out.println("Blah2");
+        //System.out.println("TeacherTT");
         
         Integer ObCounter;
         Integer Day,Period;
@@ -949,11 +954,11 @@ class TimeTableGen{
                 for(Period=0;Period<7;Period++)
                 {
                     
-                    //System.out.println(Day + "   " + Period + "   " +Teacher[ObCounter].ClsAlt[Day][Period][0]);
+                    //System.out.println(Day + "   " + Period + "   " +Teacher[ObCounter].ClsAlt[Day][Period][0] + "   " +Teacher[ObCounter].ClsAlt[Day][Period][1]);
                     
                     if(Teacher[ObCounter].ClsAlt[Day][Period][0]!=null){
                         
-                        if(Teacher[ObCounter].ClsAlt[Day][Period][0]!=null){
+                        if(Teacher[ObCounter].ClsAlt[Day][Period][1]!=null){
                             
                             CLabel = new Label(Column,Row,Class[Teacher[ObCounter].ClsAlt[Day][Period][0]].Sem +  Class[Teacher[ObCounter].ClsAlt[Day][Period][0]].Dept + Class[Teacher[ObCounter].ClsAlt[Day][Period][0]].Div + "/" + Subject[Teacher[ObCounter].ClsAlt[Day][Period][1]].ShortName);  
                             CSheet.addCell(CLabel);   
@@ -988,7 +993,7 @@ class TimeTableGen{
     public static void LabTimeTableOuput(WritableWorkbook OutputWorkbook) throws IOException, jxl.write.WriteException {
         
         
-        //System.out.println("Blah3");
+        //System.out.println("LabTT");
         
         Integer ObCounter;
         Integer Day,Period;
@@ -1932,7 +1937,7 @@ class TimeTableGen{
             
             CurrentTeacher = Teacher[TCounter];//Teacher Object being operated on at the present
             
-            
+            //System.out.println("Teacher: " + CurrentTeacher.Name);
             
             for(SCounter=0;CurrentTeacher.SCId[SCounter][0]!=null;SCounter++){//To traverse through the Subjects of the Teacher
                 
@@ -1976,8 +1981,8 @@ public class TimeTable extends Thread {
     
     public static void GenerationIteration(){
         
-        //String Input;
-        //Input = "C:\\Documents and Settings\\Home\\Desktop\\TimeTable 3rd Revision\\TimeTable\\Excel Input Files\\CS -SUBJECT LIST Corrected2.xls";
+        String Input;
+        Input = "C:\\TimeTableManagement\\TimeTable\\Excel Input Files\\The Input.xls";
         
         Integer Generation=1;
         Integer LowestUnallotted=10000;
@@ -1997,7 +2002,8 @@ public class TimeTable extends Thread {
            
         //TimeTableGen.Create();
         
-        TimeTableGen.ExcelInput(GUI.Input);
+        TimeTableGen.ExcelInput(Input);
+        //TimeTableGen.ExcelInput(GUI.Input);
         
         TimeTableGen.CountTotalInputHours();        
         
