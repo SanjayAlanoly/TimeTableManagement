@@ -21,6 +21,7 @@ interface Constants{
     public static final int SMAX = 44;  //45
     public static final int CMAX = 8;   //8
     public static final int LMAX = 8;   //8
+    public static final int UnallottedMax = 11;
 }
 
 class Classes{
@@ -294,6 +295,7 @@ class TimeTableGen{
     
     
     public static Integer TotalUnallotted = 0;
+    public static Integer UnallottedCounter = 0 ;
     
     /*public static void Create(){
         
@@ -1083,6 +1085,10 @@ class TimeTableGen{
             
             //System.out.println("Zero");
             
+            if(UnallottedCounter > Constants.UnallottedMax){
+                break;
+            }
+            
             for(SCounter=0;CurrentTeacher.SCId[SCounter][0]!=null;SCounter++){//To traverse through the Subjects of the Teacher
                 
                 if((Subject[CurrentTeacher.SCId[SCounter][0]].Duration==3) || (Subject[CurrentTeacher.SCId[SCounter][0]].ElectiveNo!=null)){//If it is a Lab Session or an elective
@@ -1160,16 +1166,20 @@ class TimeTableGen{
                        
                     }
                     
-                     
+                     if(AltHrs<SubHrs){
+                
+                        UnallottedCounter += SubHrs-AltHrs;
+                    }
                     
                 }
+            }    
             }
         }
         
             
             
         
-    } 
+     
     
     
      
@@ -2011,12 +2021,17 @@ public class TimeTable extends Thread {
         
         
         do{
-            TimeTableGen.TotalUnallotted=0;
+            
+            TimeTableGen.UnallottedCounter = 0;
+            TimeTableGen.TotalUnallotted = 0;
             TimeTableGen.ClearTables();
             //TimeTableGen.SepAssign();
             TimeTableGen.LabAllotment();
             TimeTableGen.ElectiveAllotment();
             TimeTableGen.ClassAllotment();
+            
+             
+                
             TimeTableGen.Unallotted();
             
             if(TimeTableGen.TotalUnallotted<LowestUnallotted){
