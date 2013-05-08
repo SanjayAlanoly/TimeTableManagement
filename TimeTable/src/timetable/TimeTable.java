@@ -14,6 +14,7 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import java.util.*;
+import java.sql.*;
 
 
 interface Constants{
@@ -162,6 +163,7 @@ class Classes{
             return true;
     }
     
+  
     
     public boolean MaxPeriodCheck(Integer Day,Integer SubId){
         Integer Period,CDay,DCount;
@@ -200,6 +202,7 @@ class Classes{
         else return false;
     }
     
+
    
      
     
@@ -634,7 +637,74 @@ class TimeTableGen{
     
     
     
-    
+    public static void TeacherDBInput(){
+        
+        Integer Id = null;
+        String Name = null;
+        String TCode = null;
+        String Cell = null;
+        
+        Integer SCId[][] = new Integer[5][5];
+               
+        Integer Row=0,Column;
+        Integer ARow,AColumn;
+        
+        try{
+            String dbURL = "jdbc:sqlserver://localhost\\sqlexpress;databaseName=timetable;integratedSecurity=true";
+            Connection conn = DriverManager.getConnection(dbURL);
+            if (conn != null) {
+                System.out.println("Connected");
+            }
+            else
+                System.out.println("Not Connected");
+
+            Statement st = conn.createStatement();
+            String sql = "Select * from teacher";
+            st.executeQuery(sql);
+            ResultSet rs = st.getResultSet();
+            
+            while(rs.next()){
+                
+                Id = rs.getInt(1);
+                Name = rs.getString(2);
+                TCode = rs.getString(3);
+                //System.out.println(Id+Name+TCode);
+                
+                Column=3;
+                for(ARow=0;ARow<5;ARow++){
+                    for(AColumn=0;AColumn<5;AColumn++){
+                        
+                        Cell = rs.getString(Column+1);
+                        if(!"".equals(rs.getString(4))){
+                            
+                            if(AColumn==0){
+                            
+                                SCId[ARow][AColumn] = getSubjectId(Cell);
+                                //System.out.println(SCId[ARow][AColumn]);
+                            
+                            }
+                            else{
+                               
+                                SCId[ARow][AColumn] = getClassId(Cell);
+                                //System.out.println(SCId[ARow][AColumn]);
+
+                            } 
+                        }
+                        else{
+                            SCId[ARow][AColumn] = null;                        
+                        }
+                        Column++;
+                    }
+                }
+                
+                Teacher[Row] = new Teachers(Id,Name,TCode,SCId);
+            }
+                
+       
+        }catch(SQLException e){
+            System.out.println(e);
+        }   
+    }
     
     
     public static void TeachersInput(String Input) throws IOException, BiffException {
@@ -2120,7 +2190,7 @@ class TimeTableGen{
             
             CurrentTeacher = Teacher[TCounter];//Teacher Object being operated on at the present
             
-            //System.out.println("Teacher: " + CurrentTeacher.Name);
+            System.out.println("Teacher: " + CurrentTeacher.Name);
             
             for(SCounter=0;CurrentTeacher.SCId[SCounter][0]!=null;SCounter++){//To traverse through the Subjects of the Teacher
                 
@@ -2540,7 +2610,7 @@ public class TimeTable extends Thread {
     public static void GenerationIteration(){
         
         String Input;
-        Input = "C:\\Documents and Settings\\s8csbproject11\\Desktop\\TimeTableManagement\\TimeTable\\Excel Input Files\\The Input Modified.xls";
+        Input = "C:\\TimeTableManagement\\TimeTable\\Excel Input Files\\The Input Modified.xls";
         
         Integer Generation=1;
         Integer LowestUnallotted=10000;
