@@ -456,7 +456,7 @@ class TimeTableGen{
        
         try{
         LabsInput(Input);
-        TeachersInput(Input);
+        TeacherDBInput();
         }
         catch(Exception E){
             System.out.println("Error in Excel Input Labs Teachers: " + E);
