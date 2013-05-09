@@ -445,7 +445,7 @@ class TimeTableGen{
        
        try{
           
-        ClassesInput(Input);        
+        ClassDBInput();        
         SubjectsInput(Input);
         }
        catch(Exception E){
@@ -454,14 +454,16 @@ class TimeTableGen{
        }
        
        
+       
         try{
-        LabsInput(Input);
+        LabDBInput();
         TeacherDBInput();
         }
         catch(Exception E){
             System.out.println("Error in Excel Input Labs Teachers: " + E);
         }
         
+       
         
        try{
             ClassFixedInput(Input);
@@ -470,6 +472,15 @@ class TimeTableGen{
            System.out.println("Error in Excel Input Fixed: " + E);
        }
            
+        
+    }
+   
+    public static void test(){
+        
+        int i;
+        for(i=0;i<Constants.CMAX;i++){
+            System.out.println(Class[i].Sem + Class[i].Dept);
+        }
         
     }
     
@@ -513,6 +524,7 @@ class TimeTableGen{
             
             Class[Row] = new Classes(Id,Sem,Dept,Div);
             
+            
         }
         
         CWorkbook.close();      
@@ -520,8 +532,53 @@ class TimeTableGen{
         
     }
     
-    
-    
+    public static void ClassDBInput(){
+        
+        Integer Id=null;
+        String Sem=null;
+        String Dept=null;    
+        String Div=null;
+                         
+        Integer Row=0;
+        
+        
+        try{
+            String dbURL = "jdbc:sqlserver://localhost\\sqlexpress;databaseName=timetable;user=sa;password=timetable";
+            Connection conn = DriverManager.getConnection(dbURL);
+            if (conn != null) {
+                System.out.println("Connected");
+            }
+            else
+                System.out.println("Not Connected");
+
+            Statement st = conn.createStatement();
+            String sql = "Select * from class";
+            st.executeQuery(sql);
+            ResultSet rs = st.getResultSet();
+            
+            while(rs.next()){
+                
+                Id = rs.getInt(1);
+                Sem = rs.getString(2);
+                Dept = rs.getString(3);
+                Div = rs.getString(4);
+            
+                Class[Row] = new Classes(Id,Sem,Dept,Div);
+                Row++;
+
+            }
+            rs.close();
+            st.close();
+            conn.close();
+        
+        }catch(Exception e){
+            System.out.println(e);
+        }
+        
+        
+        
+        
+    }
     
     public static void SubjectsInput(String Input) throws IOException, BiffException {
         Integer Id;
@@ -588,6 +645,58 @@ class TimeTableGen{
     }
     
     
+    public static void SubjectDBInput(){
+        Integer Id=null;
+        String Name=null;
+        String ShortName=null;
+        Integer HrsPerWeek=null;
+        Integer Duration=null;
+        Integer ElectiveNo=null;
+              
+        Integer Row=0;
+        
+        
+        
+        try{
+            String dbURL = "jdbc:sqlserver://localhost\\sqlexpress;databaseName=timetable;user=sa;password=timetable";
+            Connection conn = DriverManager.getConnection(dbURL);
+            if (conn != null) {
+                System.out.println("Connected");
+            }
+            else
+                System.out.println("Not Connected");
+
+            Statement st = conn.createStatement();
+            String sql = "Select * from subject";
+            st.executeQuery(sql);
+            ResultSet rs = st.getResultSet();
+            
+            while(rs.next()){
+                
+                Id = rs.getInt(1);
+                Name = rs.getString(2);
+                ShortName = rs.getString(3);
+                HrsPerWeek = rs.getInt(4);
+                Duration = rs.getInt(5);
+                ElectiveNo = rs.getInt(6);
+            
+                Subject[Row] = new Subjects(Id,Name,ShortName,HrsPerWeek,Duration,ElectiveNo);
+                Row++;
+
+            }
+            rs.close();
+            st.close();
+            conn.close();
+        
+        }catch(Exception e){
+            System.out.println(e);
+        }
+        
+        
+        
+    }
+    
+    
     public static void LabsInput(String Input) throws IOException, BiffException {
         Integer Id;
         String Name;
@@ -635,6 +744,56 @@ class TimeTableGen{
     }
     
     
+    public static void LabDBInput(){
+        
+        Integer Id=null;
+        String Name=null;
+        Integer SId[] = new Integer[5];
+        
+                         
+        Integer Row=0;
+        
+        
+        
+        try{
+            String dbURL = "jdbc:sqlserver://localhost\\sqlexpress;databaseName=timetable;user=sa;password=timetable";
+            Connection conn = DriverManager.getConnection(dbURL);
+            if (conn != null) {
+                System.out.println("Connected");
+            }
+            else
+                System.out.println("Not Connected");
+
+            Statement st = conn.createStatement();
+            String sql = "Select * from lab";
+            st.executeQuery(sql);
+            ResultSet rs = st.getResultSet();
+            
+            while(rs.next()){
+                
+                Id = rs.getInt(1);
+                Name = rs.getString(2);
+                SId[0] = getSubjectId(rs.getString(3));
+                SId[1] = getSubjectId(rs.getString(4));
+                SId[2] = getSubjectId(rs.getString(5));
+                SId[3] = getSubjectId(rs.getString(6));
+                SId[4] = getSubjectId(rs.getString(7));
+                
+                
+                Lab[Row] = new Labs(Id,Name,SId[0],SId[1],SId[2],SId[3],SId[4]);
+                Row++;
+
+            }
+            rs.close();
+            st.close();
+            conn.close();
+        
+        }catch(Exception e){
+            System.out.println(e);
+        }
+        
+        
+    }
     
     
     public static void TeacherDBInput(){
@@ -650,7 +809,7 @@ class TimeTableGen{
         Integer ARow,AColumn;
         
         try{
-            String dbURL = "jdbc:sqlserver://localhost\\sqlexpress;databaseName=timetable;integratedSecurity=true";
+            String dbURL = "jdbc:sqlserver://localhost\\sqlexpress;databaseName=timetable;user=sa;password=timetable";
             Connection conn = DriverManager.getConnection(dbURL);
             if (conn != null) {
                 System.out.println("Connected");
@@ -696,15 +855,25 @@ class TimeTableGen{
                         Column++;
                     }
                 }
-                
+                //System.out.println(Id+Name+TCode);
                 Teacher[Row] = new Teachers(Id,Name,TCode,SCId);
+                Row++;
             }
+            rs.close();
+            st.close();
+            conn.close();
                 
        
         }catch(SQLException e){
             System.out.println(e);
-        }   
+        }
+        
+        
+        
     }
+    
+    
+            
     
     
     public static void TeachersInput(String Input) throws IOException, BiffException {
@@ -831,14 +1000,18 @@ class TimeTableGen{
                                 SubId = getSubjectId(SubName);
                                 TeacherId[0] = null;
                             }
-                            
+                            //System.out.println("Blah");
                             if(CellString.indexOf("/")!=-1 && CellString.indexOf(",")==-1){
+                                //System.out.println("Test");
                                 Middle = CellString.indexOf("/");
                                 End = CellString.length();
                                 SubName = CellString.substring(0,Middle);
                                 TeacherName[0] = CellString.substring(Middle+1,End);
+                                 //System.out.println("Blah1");
                                 SubId = getSubjectId(SubName);
+                                 //System.out.println("Name: " + TeacherName[0]);
                                 TeacherId[0] = getTeacherId(TeacherName[0]);  
+                               //System.out.println("Id: " + TeacherId[0]);
                             }
                             
                             if(CellString.indexOf("/")!=-1 && CellString.indexOf(",")!=-1){
@@ -874,6 +1047,8 @@ class TimeTableGen{
                             Class[ClassId].Alt[Row-1][Column-1][0] = SubId;
                             Class[ClassId].Alt[Row-1][Column-1][1] = TeacherId[0];
                             Class[ClassId].Alt[Row-1][Column-1][2] = 1;
+                            
+                            //System.out.println("Blah3");
                             
                             for(TCounter=0;TCounter<Count;TCounter++){
                                 
@@ -942,16 +1117,18 @@ class TimeTableGen{
     }
     
     
+    
     public static Integer getTeacherId(String TeacherName){      
         
         Integer Counter,TeacherId;
         String CurrentTeacherName;
         
         //System.out.println(TeacherName);
-        
+        //System.out.println(Teacher[0].TCode);
         TeacherId = null;
         
         for(Counter=0;Counter<Constants.TMAX;Counter++){
+            //System.out.println(Teacher[Counter].TCode);
             CurrentTeacherName = Teacher[Counter].TCode;
             
             if(CurrentTeacherName.equals(TeacherName)){
@@ -2190,15 +2367,15 @@ class TimeTableGen{
             
             CurrentTeacher = Teacher[TCounter];//Teacher Object being operated on at the present
             
-            System.out.println("Teacher: " + CurrentTeacher.Name);
-            
+            //System.out.println("Teacher: " + Teacher[TCounter].Name + TCounter);
+            //System.out.println("Test");
             for(SCounter=0;CurrentTeacher.SCId[SCounter][0]!=null;SCounter++){//To traverse through the Subjects of the Teacher
                 
                       
                 CurrentSubId=CurrentTeacher.SCId[SCounter][0];
                 SubHrs=Subject[CurrentSubId].HrsPerWeek;
                 
-                
+                //System.out.println(CurrentSubId);
                                 
                 for(CCounter=1;CCounter<5;CCounter++){//To traverse throught the Classes of the Teacher
                     
