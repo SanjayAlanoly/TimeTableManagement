@@ -1184,6 +1184,19 @@ class TimeTableGen{
         
     }
     
+    public static void ExcelOutput4(){
+        try{
+            WritableWorkbook OutputWorkbook = Workbook.createWorkbook(new File("OutputSwapLevel3.xls"));
+            ClassTimeTableOuput(OutputWorkbook);
+            TeacherTimeTableOuput(OutputWorkbook);
+            LabTimeTableOuput(OutputWorkbook);
+        }
+        catch(Exception E){
+            System.out.println("Error in Excel Output:" + E);
+        }
+        
+    }
+    
     
 
 
@@ -2437,6 +2450,34 @@ class TimeTableGen{
               
     }
     
+    public static void UnallottedIdentify2(){
+        
+        Integer Counter,i;
+        
+        String s1,s2,s3,s4,s5;
+        s5 = "";
+        
+        for(Counter=0;Counter<Constants.CMAX;Counter++){
+            
+            
+            
+            for(i = 0; i < Class[Counter].UnallottedCount ; i++){
+                
+                if(Class[Counter].Unallotted[i][0] == -1 )
+                    continue;
+                s1 = "Class Name: " + Class[Counter].Sem + Class[Counter].Dept + Class[Counter].Div;
+                //System.out.println("UnallottedCount: " + Class[Counter].UnallottedCount);
+                s2 = "Teacher: " + Teacher[Class[Counter].Unallotted[i][0]].Name;
+                s3 = "Subject: " + Subject[Class[Counter].Unallotted[i][1]].Name;
+                s4 = "Count: " + Class[Counter].Unallotted[i][2];
+                s5 = s5 + s1 + "\n" + s2 + "\n" + s3 + "\n" + s4 + "\n\n\n" ;
+                
+            }
+        }
+        GUI.SetAreaText(s5);
+              
+    }
+    
     
     public static void CheckViolation(){
         
@@ -2748,21 +2789,200 @@ class TimeTableGen{
 
                                                                     
                                         //System.out.println("From: " + (Day+1) + "  " + (Period+1) + "  " + Subject[USub].Name + " To: " + (CheckDay+1) + "  " + (CheckPeriod+1) + "  " + Subject[SwapSub].Name);
-                                        System.out.println("Hai");    
+                                        System.out.println("Level 2");    
 
                                         Flag = true;
                                         break;
 
                                     }
                                 }
-                            }    
+                                if(Flag==true) break;
+                            }  
+                            if(Flag==true) break;
                         }        
                         if(Flag==true) break;
                     }
                     
                     if(Flag==true) break;
                 }
+                
             }
+            
+        }
+        
+        
+    }
+    
+    
+    public static void SwapLevel3(){
+        
+        Integer UC,UTeacher,USub,Day,Period,CCounter,UDP,CheckDay,CheckPeriod,SwapTeacher,SwapSub,SwapTeacher2,SwapSub2,SwapTeacher3,SwapSub3,Day2,Period2,Day3,Period3;
+        List UDay = new ArrayList();
+        List UPeriod = new ArrayList();
+        Boolean Flag;
+        
+        
+        
+        
+        
+        for(CCounter = 0; CCounter < Constants.CMAX; CCounter++){
+            
+            UDay.clear();
+            UPeriod.clear();
+            
+            for(Day = 0; Day < 5; Day++){
+                    
+                    for(Period =0; Period < 7; Period++){
+                           
+                        if(Class[CCounter].Alt[Day][Period][0] == null){
+                            
+                            UDay.add(Day);
+                            UPeriod.add(Period);
+                            
+                           
+                        }
+                        
+                    }
+            }
+            
+            for(UC = 0; UC < Class[CCounter].UnallottedCount; UC++){
+                
+                Flag=false;
+                
+                if(Class[CCounter].Unallotted[UC][0]==-1)
+                    continue;
+                
+                UTeacher = Class[CCounter].Unallotted[UC][0];
+                USub = Class[CCounter].Unallotted[UC][1];
+                
+                
+                //System.out.println("CCounter: " + CCounter + " UTeacher: " + Teacher[UTeacher].Name + " USub: " + Subject[USub].Name);
+                
+                //System.out.println("Class Name: " + Class[CCounter].Sem + Class[CCounter].Dept + Class[CCounter].Div + " Teacher: " + Teacher[UTeacher].Name + " Subject: " + Subject[USub].Name);
+                
+                for(Day = 0; Day < 5; Day++){
+                    
+                    for(Period = 0; Period < 7; Period++){
+                        
+                        for(Day2 = 0; Day2 < 5; Day2++){
+                            
+                            for(Period2 = 0; Period2 <7; Period2++){
+                                
+                                for(Day3 = 0; Day3 < 5; Day3++){
+                            
+                                    for(Period3 = 0; Period3 <7; Period3++){
+                                
+                                        for(UDP = 0; UDP < UDay.size(); UDP++){
+
+                                            CheckDay = (Integer) UDay.get(UDP);
+                                            CheckPeriod = (Integer) UPeriod.get(UDP);
+
+                                            //System.out.println("CheckDay: " + CheckDay + " CheckPeriod: " + CheckPeriod);
+
+                                            SwapSub = Class[CCounter].Alt[Day][Period][0];
+                                            SwapTeacher = Class[CCounter].Alt[Day][Period][1];
+
+                                            SwapSub2 = Class[CCounter].Alt[Day2][Period2][0];
+                                            SwapTeacher2 = Class[CCounter].Alt[Day2][Period2][1];
+                                            
+                                            SwapSub3 = Class[CCounter].Alt[Day3][Period3][0];
+                                            SwapTeacher3 = Class[CCounter].Alt[Day3][Period3][1];
+
+                                            //System.out.println("SwapTeacher: " + Teacher[SwapTeacher].Name);
+
+                                            //System.out.println(CCounter);
+                                            if((Class[CCounter].ConsecutiveCheck(Day,Period,USub))                                    
+                                                        &&(Class[CCounter].FirstPeriodCheck(USub))
+                                                        &&(Class[CCounter].MaxTwoPeriodCheck(Day,USub))
+                                                        &&(Teacher[UTeacher].MaxWorkloadPerDayForTheory(Day))
+                                                        &&(Teacher[UTeacher].ConsecutiveCheck(Day,Period,CCounter))
+
+
+                                                        &&SwapTeacher!=null
+                                                        &&Subject[SwapSub].Duration!=3
+                                                        &&Subject[SwapSub].ElectiveNo==null
+                                                        &&(Class[CCounter].ConsecutiveCheck(Day2,Period2,SwapSub))                                    
+                                                        &&(Class[CCounter].FirstPeriodCheck(SwapSub))
+                                                        &&(Class[CCounter].MaxTwoPeriodCheck(Day2,SwapSub))
+                                                        &&(Teacher[SwapTeacher].MaxWorkloadPerDayForTheory(Day2))
+                                                        &&(Teacher[SwapTeacher].ConsecutiveCheck(Day2,Period2,CCounter))
+                                                    
+                                                    
+                                                        &&SwapTeacher2!=null
+                                                        &&Subject[SwapSub2].Duration!=3
+                                                        &&Subject[SwapSub2].ElectiveNo==null
+                                                        &&(Class[CCounter].ConsecutiveCheck(Day3,Period3,SwapSub2))                                    
+                                                        &&(Class[CCounter].FirstPeriodCheck(SwapSub2))
+                                                        &&(Class[CCounter].MaxTwoPeriodCheck(Day3,SwapSub2))
+                                                        &&(Teacher[SwapTeacher2].MaxWorkloadPerDayForTheory(Day3))
+                                                        &&(Teacher[SwapTeacher2].ConsecutiveCheck(Day3,Period3,CCounter))
+
+
+                                                        &&SwapTeacher3!=null
+                                                        &&Subject[SwapSub3].Duration!=3
+                                                        &&Subject[SwapSub3].ElectiveNo==null
+                                                        &&Class[CCounter].Alt[CheckDay][CheckPeriod][2]==null
+                                                        &&Teacher[SwapTeacher3].ClsAlt[CheckDay][CheckPeriod][2]==null
+                                                        &&(Class[CCounter].ConsecutiveCheck(CheckDay,CheckPeriod,SwapSub3))
+                                                        &&(Class[CCounter].FirstPeriodCheck(SwapSub3))
+                                                        &&(Class[CCounter].MaxPeriodCheck(CheckDay,SwapSub3))
+                                                        &&(Teacher[SwapTeacher3].MaxWorkloadPerDayForTheory(CheckDay))
+                                                        &&(Teacher[SwapTeacher3].ConsecutiveCheck(CheckDay,CheckPeriod,CCounter))){
+
+                                                Class[CCounter].Alt[Day][Period][0] = USub;
+                                                Class[CCounter].Alt[Day][Period][1] = UTeacher;
+                                                Teacher[UTeacher].ClsAlt[Day][Period][0] = CCounter;
+                                                Teacher[UTeacher].ClsAlt[Day][Period][1] = USub;
+
+                                                Class[CCounter].Alt[Day2][Period2][0] = SwapSub;
+                                                Class[CCounter].Alt[Day2][Period2][1] = SwapTeacher;
+                                                Teacher[SwapTeacher].ClsAlt[Day2][Period2][0] = CCounter;
+                                                Teacher[SwapTeacher].ClsAlt[Day2][Period2][1] = SwapSub;
+                                                
+                                                Class[CCounter].Alt[Day3][Period3][0] = SwapSub2;
+                                                Class[CCounter].Alt[Day3][Period3][1] = SwapTeacher2;
+                                                Teacher[SwapTeacher2].ClsAlt[Day3][Period3][0] = CCounter;
+                                                Teacher[SwapTeacher2].ClsAlt[Day3][Period3][1] = SwapSub2;
+
+                                                Class[CCounter].Alt[CheckDay][CheckPeriod][0] = SwapSub3;
+                                                Class[CCounter].Alt[CheckDay][CheckPeriod][1] = SwapTeacher3;
+                                                Teacher[SwapTeacher3].ClsAlt[CheckDay][CheckPeriod][0] = CCounter;
+                                                Teacher[SwapTeacher3].ClsAlt[CheckDay][CheckPeriod][1] = SwapSub3;
+                                                
+                                                
+
+                                                Class[CCounter].Unallotted[UC][0] = -1;
+                                                Class[CCounter].Unallotted[UC][1] = -1;
+
+                                                UDay.remove(UDP);
+                                                UPeriod.remove(UDP);
+
+
+                                                //System.out.println("From: " + (Day+1) + "  " + (Period+1) + "  " + Subject[USub].Name + " To: " + (CheckDay+1) + "  " + (CheckPeriod+1) + "  " + Subject[SwapSub].Name);
+                                                System.out.println("Level 3");    
+
+                                                Flag = true;
+                                                break;
+
+                                            }
+                                        }
+                                        if(Flag==true) break;
+                                    }   
+                                    if(Flag==true) break;
+                                }
+                                if(Flag==true) break;
+                            }
+                            if(Flag==true) break;
+                        }
+                                
+                        if(Flag==true) break;
+                    }
+                    
+                    if(Flag==true) break;
+                }
+                
+            }
+            
         }
         
         
@@ -2841,7 +3061,7 @@ public class TimeTable extends Thread {
              LowestUnallotted=TimeTableGen.TotalUnallotted;
              Occurrences=0;
              TimeTableGen.ExcelOutput();
-             TimeTableGen.UnallottedIdentify();
+             //TimeTableGen.UnallottedIdentify();
              
             }
                                     
@@ -2892,7 +3112,15 @@ public class TimeTable extends Thread {
         TimeTableGen.SwapLevel2();
         TimeTableGen.ExcelOutput3();
         
+        TimeTableGen.SwapLevel3();
+        TimeTableGen.ExcelOutput4();
         
+        TimeTableGen.TotalUnallotted = 0;
+        TimeTableGen.Unallotted();
+        String Output = "Unallotted after Swapping: " + TimeTableGen.TotalUnallotted;
+        GUI.SetLabelText(Output);
+        
+        TimeTableGen.UnallottedIdentify2();
         
         
         System.out.println("");
